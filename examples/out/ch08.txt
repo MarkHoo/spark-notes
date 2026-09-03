@@ -1,0 +1,131 @@
+== 8.2.1 默认关键配置 ==
+spark.sql.adaptive.enabled = true
+spark.sql.autoBroadcastJoinThreshold = 10485760b
+spark.sql.shuffle.partitions = 200
+
+== 8.2.2 explain 读执行计划：GROUP BY ==
+== Physical Plan ==
+AdaptiveSparkPlan isFinalPlan=false
++- HashAggregate(keys=[dept#2], functions=[count(1)])
+   +- Exchange hashpartitioning(dept#2, 200), ENSURE_REQUIREMENTS, [plan_id=24]
+      +- HashAggregate(keys=[dept#2], functions=[partial_count(1)])
+         +- Project [dept#2]
+            +- Scan ExistingRDD[emp_id#0,name#1,dept#2,salary#3,age#4,city#5,hire_date#6]
+
+
+
+== 8.2.3 explain 读执行计划：JOIN ==
+== Physical Plan ==
+AdaptiveSparkPlan isFinalPlan=false
++- Project [name#1, manager#15]
+   +- SortMergeJoin [dept#2], [dept#14], Inner
+      :- Sort [dept#2 ASC NULLS FIRST], false, 0
+      :  +- Exchange hashpartitioning(dept#2, 200), ENSURE_REQUIREMENTS, [plan_id=59]
+      :     +- Project [name#1, dept#2]
+      :        +- Filter isnotnull(dept#2)
+      :           +- Scan ExistingRDD[emp_id#0,name#1,dept#2,salary#3,age#4,city#5,hire_date#6]
+      +- Sort [dept#14 ASC NULLS FIRST], false, 0
+         +- Exchange hashpartitioning(dept#14, 200), ENSURE_REQUIREMENTS, [plan_id=60]
+            +- Project [dept#14, manager#15]
+               +- Filter isnotnull(dept#14)
+                  +- Scan ExistingRDD[dept#14,manager#15,budget#16]
+
+
+
+== 8.3.1 分区数由 spark.sql.shuffle.partitions 控制 ==
+shuffle.partitions=4 时，GROUP BY 结果分区数: 4
+shuffle.partitions=8 时，GROUP BY 结果分区数: 8
+
+== 8.4.1 AQE 开启时，小结果自动收敛分区 ==
+AQE 开启(200 分区设定)后 GROUP BY 实际分区数: 1
+AQE 关闭(200 分区设定)后 GROUP BY 实际分区数: 200
+
+== 8.5.1 小表 join 自动广播（默认阈值 10MB） ==
+== Physical Plan ==
+AdaptiveSparkPlan isFinalPlan=false
++- Project [name#1, manager#15]
+   +- SortMergeJoin [dept#2], [dept#14], Inner
+      :- Sort [dept#2 ASC NULLS FIRST], false, 0
+      :  +- Exchange hashpartitioning(dept#2, 200), ENSURE_REQUIREMENTS, [plan_id=464]
+      :     +- Project [name#1, dept#2]
+      :        +- Filter isnotnull(dept#2)
+      :           +- Scan ExistingRDD[emp_id#0,name#1,dept#2,salary#3,age#4,city#5,hire_date#6]
+      +- Sort [dept#14 ASC NULLS FIRST], false, 0
+         +- Exchange hashpartitioning(dept#14, 200), ENSURE_REQUIREMENTS, [plan_id=465]
+            +- Project [dept#14, manager#15]
+               +- Filter isnotnull(dept#14)
+                  +- Scan ExistingRDD[dept#14,manager#15,budget#16]
+
+
+
+== 8.5.2 关掉自动广播后变成 SortMergeJoin ==
+== Physical Plan ==
+AdaptiveSparkPlan isFinalPlan=false
++- Project [name#1, manager#15]
+   +- SortMergeJoin [dept#2], [dept#14], Inner
+      :- Sort [dept#2 ASC NULLS FIRST], false, 0
+      :  +- Exchange hashpartitioning(dept#2, 200), ENSURE_REQUIREMENTS, [plan_id=503]
+      :     +- Project [name#1, dept#2]
+      :        +- Filter isnotnull(dept#2)
+      :           +- Scan ExistingRDD[emp_id#0,name#1,dept#2,salary#3,age#4,city#5,hire_date#6]
+      +- Sort [dept#14 ASC NULLS FIRST], false, 0
+         +- Exchange hashpartitioning(dept#14, 200), ENSURE_REQUIREMENTS, [plan_id=504]
+            +- Project [dept#14, manager#15]
+               +- Filter isnotnull(dept#14)
+                  +- Scan ExistingRDD[dept#14,manager#15,budget#16]
+
+
+
+== 8.5.3 手动 hint：/*+ BROADCAST(d) */ 强制广播 ==
+== Physical Plan ==
+AdaptiveSparkPlan isFinalPlan=false
++- Project [name#1, manager#15]
+   +- BroadcastHashJoin [dept#2], [dept#14], Inner, BuildRight, false
+      :- Project [name#1, dept#2]
+      :  +- Filter isnotnull(dept#2)
+      :     +- Scan ExistingRDD[emp_id#0,name#1,dept#2,salary#3,age#4,city#5,hire_date#6]
+      +- BroadcastExchange HashedRelationBroadcastMode(List(input[0, string, true]),false), [plan_id=541]
+         +- Project [dept#14, manager#15]
+            +- Filter isnotnull(dept#14)
+               +- Scan ExistingRDD[dept#14,manager#15,budget#16]
+
+
+
+== 8.6.1 缓存：cache 后用 explain 看 InMemoryTableScan ==
+存储级别: Disk Memory Deserialized 1x Replicated
+== Physical Plan ==
+AdaptiveSparkPlan isFinalPlan=false
++- InMemoryTableScan [emp_id#0, name#1, dept#2, salary#3, age#4, city#5, hire_date#6]
+      +- InMemoryRelation [emp_id#0, name#1, dept#2, salary#3, age#4, city#5, hire_date#6], StorageLevel(disk, memory, deserialized, 1 replicas)
+            +- *(1) Filter (isnotnull(dept#2) AND (dept#2 = 技术部))
+               +- *(1) Scan ExistingRDD[emp_id#0,name#1,dept#2,salary#3,age#4,city#5,hire_date#6]
+
+
+是否已缓存: True
+解除缓存后是否还缓存: False
+
+== 8.7.1 输出小文件：coalesce(1) 控制 part 文件数 ==
+coalesce(1) 写出的 part 文件数: 1
+
+== 8.8.1 数据倾斜：两阶段加盐聚合结果与普通聚合一致 ==
++----+---+
+|dept|s  |
++----+---+
+|1   |600|
+|2   |20 |
+|3   |40 |
++----+---+
+
++----+---+
+|dept|s  |
++----+---+
+|1   |600|
+|2   |20 |
+|3   |40 |
++----+---+
+
+两阶段聚合与普通聚合结果一致: True
+
+== 8.8.2 处理倾斜的另一种思路：先聚合再 join（下推） ==
+略，思路见正文。
+

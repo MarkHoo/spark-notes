@@ -1,0 +1,67 @@
+== 示例1.1 第一个 SparkSession ==
+Spark 版本: 3.5.4
+默认 shuffle 分区数: 200
+
+== 示例1.2 从内存创建 DataFrame ==
+root
+ |-- name: string (nullable = true)
+ |-- age: long (nullable = true)
+ |-- city: string (nullable = true)
+
++-----+---+----+
+|name |age|city|
++-----+---+----+
+|Alice|25 |北京|
+|Bob  |30 |上海|
+|Cindy|28 |广州|
++-----+---+----+
+
+
+== 示例1.3 注册临时视图并用 SQL 查询 ==
++-----+---+
+|name |age|
++-----+---+
+|Bob  |30 |
+|Cindy|28 |
++-----+---+
+
+
+== 示例1.4 DataFrame API 与 SQL 等价写法 ==
++-----+---+
+|name |age|
++-----+---+
+|Bob  |30 |
+|Cindy|28 |
++-----+---+
+
+
+== 示例1.5 查看执行计划 ==
+== Physical Plan ==
+AdaptiveSparkPlan isFinalPlan=false
++- HashAggregate(keys=[city#2], functions=[count(1)])
+   +- Exchange hashpartitioning(city#2, 200), ENSURE_REQUIREMENTS, [plan_id=62]
+      +- HashAggregate(keys=[city#2], functions=[partial_count(1)])
+         +- Project [city#2]
+            +- Scan ExistingRDD[name#0,age#1L,city#2]
+
+
+
+== 示例1.6 读文件并自动推断 Schema ==
+root
+ |-- name: string (nullable = true)
+ |-- age: string (nullable = true)
+ |-- city: string (nullable = true)
+
++-----+---+----+
+|name |age|city|
++-----+---+----+
+|David|35 |深圳|
+|Eva  |22 |北京|
+|Frank|40 |杭州|
++-----+---+----+
+
+临时目录: /tmp/ch01_55u80uv2
+
+== 示例1.7 查看临时视图列表 ==
+[Table(name='people', catalog=None, namespace=[], description=None, tableType='TEMPORARY', isTemporary=True)]
+

@@ -1,0 +1,127 @@
+== 7.3.1 CSV 写出 ==
+写出后的文件: ['._SUCCESS.crc', '.part-00000-638a844a-552d-4959-bf22-f99d0fdde408-c000.csv.crc', '.part-00001-638a844a-552d-4959-bf22-f99d0fdde408-c000.csv.crc', '_SUCCESS', 'part-00000-638a844a-552d-4959-bf22-f99d0fdde408-c000.csv', 'part-00001-638a844a-552d-4959-bf22-f99d0fdde408-c000.csv']
+
+== 7.3.2 CSV 读回（并自动推断类型） ==
+root
+ |-- emp_id: integer (nullable = true)
+ |-- name: string (nullable = true)
+ |-- dept: string (nullable = true)
+ |-- salary: integer (nullable = true)
+
++------+----+------+------+
+|emp_id|name|dept  |salary|
++------+----+------+------+
+|6     |赵磊|技术部|18000 |
+|7     |孙丽|市场部|12000 |
+|8     |周明|技术部|35000 |
++------+----+------+------+
+only showing top 3 rows
+
+
+== 7.3.3 读 TSV（自定义分隔符） ==
+TSV 文件内容预览:
+   emp_id	name	city
+   1	张伟	北京
+   2	李娜	上海
+TSV 读回行数: 10
+
+== 7.4.1 JSON 写出 ==
+JSON 文件内容前 2 行:
+   {"order_id":1001,"user_id":1,"product":"iPhone 15","amount":5999.0}
+   {"order_id":1002,"user_id":2,"product":"机械键盘","amount":399.0}
+
+== 7.4.2 读多行 JSON（multiline） ==
+root
+ |-- id: long (nullable = true)
+ |-- name: string (nullable = true)
+ |-- tags: array (nullable = true)
+ |    |-- element: string (containsNull = true)
+
++---+-----+-----------+
+|id |name |tags       |
++---+-----+-----------+
+|1  |Alice|[vip, 老客]|
+|2  |Bob  |[新客]     |
++---+-----+-----------+
+
+
+== 7.5.1 Parquet 写出并按部门分区 ==
+目录结构:
+   ._SUCCESS.crc
+   _SUCCESS
+   dept=产品部/.part-00000-96a85413-1534-4f1f-ac3b-68d3831cdc2b.c000.snappy.parquet.crc
+   dept=产品部/.part-00001-96a85413-1534-4f1f-ac3b-68d3831cdc2b.c000.snappy.parquet.crc
+   dept=产品部/part-00000-96a85413-1534-4f1f-ac3b-68d3831cdc2b.c000.snappy.parquet
+   dept=产品部/part-00001-96a85413-1534-4f1f-ac3b-68d3831cdc2b.c000.snappy.parquet
+   dept=市场部/.part-00000-96a85413-1534-4f1f-ac3b-68d3831cdc2b.c000.snappy.parquet.crc
+   dept=市场部/.part-00001-96a85413-1534-4f1f-ac3b-68d3831cdc2b.c000.snappy.parquet.crc
+   dept=市场部/part-00000-96a85413-1534-4f1f-ac3b-68d3831cdc2b.c000.snappy.parquet
+   dept=市场部/part-00001-96a85413-1534-4f1f-ac3b-68d3831cdc2b.c000.snappy.parquet
+   dept=技术部/.part-00000-96a85413-1534-4f1f-ac3b-68d3831cdc2b.c000.snappy.parquet.crc
+   dept=技术部/.part-00001-96a85413-1534-4f1f-ac3b-68d3831cdc2b.c000.snappy.parquet.crc
+   dept=技术部/part-00000-96a85413-1534-4f1f-ac3b-68d3831cdc2b.c000.snappy.parquet
+   dept=技术部/part-00001-96a85413-1534-4f1f-ac3b-68d3831cdc2b.c000.snappy.parquet
+   dept=财务部/.part-00001-96a85413-1534-4f1f-ac3b-68d3831cdc2b.c000.snappy.parquet.crc
+   dept=财务部/part-00001-96a85413-1534-4f1f-ac3b-68d3831cdc2b.c000.snappy.parquet
+
+== 7.5.2 读回 Parquet：分区列自动出现 ==
+root
+ |-- emp_id: integer (nullable = true)
+ |-- name: string (nullable = true)
+ |-- salary: integer (nullable = true)
+ |-- age: integer (nullable = true)
+ |-- city: string (nullable = true)
+ |-- hire_date: string (nullable = true)
+ |-- dept: string (nullable = true)
+
+
+== 7.5.3 Parquet 读回时可以直接按分区列过滤 ==
+技术部人数: 4
+
+== 7.6.1 saveAsTable 保存成'表' ==
+spark.table 读取行数: 10
+表类型: MANAGED
+
+== 7.6.2 用 SQL 直接查表 ==
++------+---+
+|dept  |cnt|
++------+---+
+|技术部|4  |
+|市场部|2  |
+|产品部|3  |
+|财务部|1  |
++------+---+
+
+
+== 7.7.1 用 Python 造一张'业务库表'（模拟 MySQL） ==
+已在 /tmp/io_book.db 建好 emp_src 表（4 行）
+
+== 7.7.2 JDBC 读取业务库 ==
+root
+ |-- emp_id: integer (nullable = true)
+ |-- name: string (nullable = true)
+ |-- dept: string (nullable = true)
+ |-- salary: integer (nullable = true)
+
++------+-----+-----+------+
+|emp_id|name |dept |salary|
++------+-----+-----+------+
+|1     |Alice|tech |12000 |
+|2     |Bob  |sales|9000  |
+|3     |Cindy|tech |15000 |
+|4     |David|ops  |11000 |
++------+-----+-----+------+
+
+
+== 7.7.3 JDBC 写入业务库 ==
+emp_dst 表当前行数: 3
+
+== 7.8.1 写出模式对比 overwrite vs append ==
+第一次 overwrite 后行数: 2
+append 1 行后行数: 3
+再次 overwrite 后行数: 2
+
+== 7.8.2 一个目录多个 part 文件也可以整体读 ==
+读回 out_mode_csv 目录（多个 part 文件）行数: 2
+
+示例产生的临时文件已清理

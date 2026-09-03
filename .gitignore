@@ -1,0 +1,19 @@
+# Python 虚拟环境
+.venv-spark/
+
+# 系统回收站目录
+.Trash-0/
+
+# IDE/项目状态数据
+.codebuddy/
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+# Spark 运行产物（章节脚本每次运行会自动重建，不入库）
+spark-warehouse/
+**/warehouse/
+**/out_*/
+**/*.db
+**/metastore_db/

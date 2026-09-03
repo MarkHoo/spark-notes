@@ -1,0 +1,14 @@
+# Spark SQL 实战指南 —— 示例回归流水线
+# 事件：main 分支 push / pull_request 时，重跑 ch01~ch09 示例并与 examples/out/ 存档比对
+# 任一章节输出与存档不一致即失败，防止"正文=真实运行输出"的契约被改坏
+main:
+  push:
+    - &verify-examples
+      name: verify-examples
+      docker:
+        build: image/Dockerfile
+      stages:
+        - name: verify
+          script: python3 examples/verify.py
+  pull_request:
+    - *verify-examples
