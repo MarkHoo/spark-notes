@@ -60,7 +60,7 @@ spark.sql("""
     SELECT d.dept, d.manager, e.name
     FROM emp_full e
     RIGHT JOIN departments d ON e.dept = d.dept
-    ORDER BY d.dept
+    ORDER BY d.dept, e.emp_id   -- 部门内按员工编号排序，保证输出顺序稳定
 """).show(truncate=False)
 print()
 
