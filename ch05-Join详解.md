@@ -266,7 +266,7 @@ spark.sql("""
 
 ### 坑 1：连接键里有 NULL，行悄悄消失
 
-`NULL = NULL` 的结果是"未知"（false），**NULL 永远匹配不上任何东西**。
+`NULL = NULL` 的结果是 UNKNOWN（既不是 TRUE 也不是 FALSE），**NULL 永远匹配不上任何东西**。
 
 验证（`emp_full` 12 行，其中周舟 dept=NULL）：
 
