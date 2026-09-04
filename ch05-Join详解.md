@@ -133,7 +133,7 @@ spark.sql("""
     SELECT d.dept, d.manager, e.name
     FROM emp_full e
     RIGHT JOIN departments d ON e.dept = d.dept
-    ORDER BY d.dept
+    ORDER BY d.dept, e.emp_id   -- 部门内按员工编号排序，保证输出顺序稳定
 """).show(truncate=False)
 ```
 
@@ -149,10 +149,10 @@ spark.sql("""
 |人事部|何平   |NULL|
 |市场部|孙丽   |刘洋|
 |市场部|孙丽   |孙丽|
-|技术部|周明   |周明|
 |技术部|周明   |张伟|
-|技术部|周明   |赵磊|
 |技术部|周明   |王强|
+|技术部|周明   |赵磊|
+|技术部|周明   |周明|
 |财务部|吴昊   |吴昊|
 +------+-------+----+
 ```
