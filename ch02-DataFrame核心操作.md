@@ -219,7 +219,7 @@ root
  |-- city: string (nullable = true)
 ```
 
-两种方式结果一样。记住常用类型的关键字即可：`STRING / INT / BIGINT / DOUBLE / DECIMAL(10,2) / DATE / TIMESTAMP / BOOLEAN`。读文件时若担心文件里有坏行，还可以 `.option("mode", "FAILFAST")`（遇到类型不匹配直接报错）或 `"PERMISSIVE"`（坏行放进 `_corrupt_record` 列）。
+两种方式结果一样。记住常用类型的关键字即可：`STRING / INT / BIGINT / DOUBLE / DECIMAL(10,2) / DATE / TIMESTAMP / BOOLEAN`。读文件时若担心文件里有坏行，还可以 `.option("mode", "FAILFAST")` 或 `"PERMISSIVE"`（后者是默认值）：`FAILFAST` 遇到解析不了的行（如显式 schema 下类型不匹配、字段个数不对）**直接让任务失败**；`PERMISSIVE` 会容忍坏行——能解析的字段照常读，解析失败的字段置 `NULL`、多余的字段被丢弃（注意：Spark 3.x 里 CSV 的 PERMISSIVE 并不会自动生成 `_corrupt_record` 列，别指望它"捞出坏行原文"）。生产上建议先 `PERMISSIVE` 体检、再决定是否升级 `FAILFAST`。
 
 > 顺手记一条：DataFrame 的 `printSchema()` 是**排查类型问题第一工具**——"这列怎么是 string 不是 int？"先 `printSchema()`，八成是没写 Schema 或没开 `inferSchema`。
 

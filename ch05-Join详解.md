@@ -232,7 +232,7 @@ spark.sql("""
 +----+------+
 ```
 
-10 名"有部门归属"的员工被选中，钱进、周舟被过滤掉。注意结果**只有左表的列**，即使写了 `SELECT e.*, d.*` 也不会出现右表列——这是 SEMI JOIN 与 INNER JOIN 的本质区别。
+10 名"有部门归属"的员工被选中，钱进、周舟被过滤掉。注意结果**只有左表的列**——这是 SEMI JOIN 与 INNER JOIN 的本质区别。**若在 SELECT 里引用右表列（如 `d.*`、`d.manager`），会直接报 `UNRESOLVED_COLUMN` 错误**（右表在 SEMI JOIN 中只充当过滤器，其列不可输出，与 INNER JOIN 能取两侧列不同）。
 
 ### 5.6.2 LEFT ANTI JOIN：只要"右表里没有对应"的左表行
 
@@ -256,7 +256,7 @@ spark.sql("""
 +----+------+
 ```
 
-**ANTI JOIN 是找"孤儿数据"的标准答案**：比如"下了单但用户表里没有的用户""有消费记录但不在黑名单库的账号"。等价写法 `WHERE NOT EXISTS (...)` 或 `NOT IN`，但 ANTI JOIN 的意图最直白。
+**ANTI JOIN 是找"孤儿数据"的标准答案**：比如"下了单但用户表里没有的用户""有消费记录但不在黑名单库的账号"。语义等价写法是 `WHERE NOT EXISTS (...)`。**注意不要用 `NOT IN` 替代**：当被比较的键含 NULL 时，`NOT IN` 会因三值逻辑把"NULL 是否在集合里"判为 UNKNOWN 而静默漏掉这些行（本页 `emp_full` 里 dept 为 NULL 的周舟就是一个例子：`ANTI JOIN` 能返回他，`NOT IN` 会丢掉他）——这正是 5.7 坑 1 的延伸，务必用 ANTI JOIN 或 `NOT EXISTS`。
 
 > 七种 JOIN 已经见完，做个小结。记一个口诀：**Inner 两边都要，Left 左表为王，Right 右表为王，Full 谁都不丢，Semi 左表当 filter，Anti 找孤儿**。实际工作中，LEFT + INNER 占 90%，其余看懂即可。
 
