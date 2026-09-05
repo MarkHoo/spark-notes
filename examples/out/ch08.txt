@@ -40,7 +40,8 @@ shuffle.partitions=8 时，GROUP BY 结果分区数: 8
 AQE 开启(200 分区设定)后 GROUP BY 实际分区数: 1
 AQE 关闭(200 分区设定)后 GROUP BY 实际分区数: 200
 
-== 8.5.1 小表 join 自动广播（默认阈值 10MB） ==
+== 8.5.1 默认 join 走 SortMergeJoin：内存表无统计信息，不会自动广播 ==
+     （尽管默认阈值 autoBroadcastJoinThreshold=10MB）
 == Physical Plan ==
 AdaptiveSparkPlan isFinalPlan=false
 +- Project [name#1, manager#15]
@@ -58,7 +59,7 @@ AdaptiveSparkPlan isFinalPlan=false
 
 
 
-== 8.5.2 关掉自动广播后变成 SortMergeJoin ==
+== 8.5.2 把自动广播阈值设为 -1（关闭）后，仍是 SortMergeJoin ==
 == Physical Plan ==
 AdaptiveSparkPlan isFinalPlan=false
 +- Project [name#1, manager#15]

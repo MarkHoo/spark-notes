@@ -59,14 +59,15 @@ print("AQE 关闭(200 分区设定)后 GROUP BY 实际分区数:", gb.rdd.getNum
 spark.conf.set("spark.sql.adaptive.enabled", "true")
 print()
 
-print("== 8.5.1 小表 join 自动广播（默认阈值 10MB） ==")
+print("== 8.5.1 默认 join 走 SortMergeJoin：内存表无统计信息，不会自动广播 ==")
+print("     （尽管默认阈值 autoBroadcastJoinThreshold=10MB）")
 spark.sql("""
     SELECT e.name, d.manager
     FROM employees e JOIN departments d ON e.dept = d.dept
 """).explain()
 print()
 
-print("== 8.5.2 关掉自动广播后变成 SortMergeJoin ==")
+print("== 8.5.2 把自动广播阈值设为 -1（关闭）后，仍是 SortMergeJoin ==")
 spark.conf.set("spark.sql.autoBroadcastJoinThreshold", "-1")
 spark.sql("""
     SELECT e.name, d.manager
