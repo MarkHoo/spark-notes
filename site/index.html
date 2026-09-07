@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spark SQL 实战指南：通俗易懂 · 拿来即用</title>
+<meta name="description" content="写给每天都要写数据处理 SQL 的工程师的 Spark SQL 实战手册（Markdown 书籍的静态学习网站）">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<!-- 顶部工具栏 -->
+<header class="topbar">
+  <div class="topbar-left">
+    <button id="btnMenu" class="icon-btn" title="目录" aria-label="打开目录">☰</button>
+    <a class="brand" href="#home">
+      <span class="brand-title">Spark SQL 实战指南</span>
+      <span class="brand-sub">通俗易懂 · 拿来即用</span>
+    </a>
+  </div>
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input id="searchInput" type="text" placeholder="搜索全书内容…（支持空格分隔多个关键词）" autocomplete="off">
+    <span id="searchShortcut" class="search-shortcut">Ctrl+K</span>
+  </div>
+  <div class="topbar-right">
+    <button id="btnFontDown" class="icon-btn" title="减小字号" aria-label="减小字号">A−</button>
+    <button id="btnFontUp" class="icon-btn" title="增大字号" aria-label="增大字号">A+</button>
+    <button id="btnTheme" class="icon-btn" title="切换深色/浅色主题" aria-label="切换主题">🌙</button>
+  </div>
+</header>
+
+<!-- 搜索面板 -->
+<div id="searchPanel" class="search-panel hidden">
+  <div id="searchResults" class="search-results"></div>
+  <div id="searchEmpty" class="search-empty hidden">没有找到匹配内容，试试其他关键词</div>
+</div>
+
+<!-- 阅读进度条 -->
+<div id="progressBar" class="progress-bar"></div>
+
+<div class="layout">
+  <!-- 侧边栏：目录 -->
+  <nav id="sidebar" class="sidebar">
+    <div class="sidebar-head">目录</div>
+    <ul id="tocList" class="toc-list"></ul>
+  </nav>
+  <div id="sidebarMask" class="sidebar-mask"></div>
+
+  <!-- 主内容区 -->
+  <main id="main" class="main">
+    <div id="homeView" class="home-view">
+      <div class="home-card">
+        <h1>《Spark SQL 实战指南：通俗易懂 · 拿来即用》</h1>
+        <p class="home-desc">写给每天都要写数据处理 SQL 的工程师 · 不讲深奥原理，只讲工作中最高频的用法</p>
+        <p class="home-version">版本基准：Spark 3.5.4（PySpark + Python，全书代码真实运行并核对）</p>
+        <div class="home-actions">
+          <button id="btnStart" class="btn-primary">📖 开始阅读（第 1 章）</button>
+          <button id="btnSearch" class="btn-secondary">🔍 搜索全书</button>
+        </div>
+        <div class="home-features">
+          <span>✓ 全文搜索（Ctrl+K）</span><span>✓ 目录导航</span><span>✓ 代码高亮与一键复制</span><span>✓ 深浅主题</span><span>✓ 字号调节</span><span>✓ 阅读进度</span>
+        </div>
+      </div>
+      <div id="homeToc" class="home-toc"></div>
+    </div>
+    <article id="articleView" class="article-view hidden">
+      <div id="articleContent" class="article-content markdown-body"></div>
+      <div class="article-nav">
+        <button id="btnPrev" class="nav-btn">← 上一章</button>
+        <button id="btnNext" class="nav-btn">下一章 →</button>
+      </div>
+    </article>
+  </main>
+</div>
+
+<button id="btnTop" class="btn-top hidden" title="回到顶部">↑</button>
+
+<!-- 数据（由 build_site.py 生成，file:// 直接打开也能用） -->
+<script src="data/README.js"></script>
+<script src="data/ch01-认识Spark-SQL.js"></script>
+<script src="data/ch02-DataFrame核心操作.js"></script>
+<script src="data/ch03-SQL查询与临时视图.js"></script>
+<script src="data/ch04-高频内置函数精讲.js"></script>
+<script src="data/ch05-Join详解.js"></script>
+<script src="data/ch06-窗口函数实战.js"></script>
+<script src="data/ch07-读写外部数据源.js"></script>
+<script src="data/ch08-性能调优实践.js"></script>
+<script src="data/ch09-综合实战案例.js"></script>
+
+<script src="js/markdown.js"></script>
+<script src="js/highlight.js"></script>
+<script src="js/search.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
